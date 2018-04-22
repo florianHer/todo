@@ -22,6 +22,7 @@ router.post(
 // Modifier une tache
 router.patch(
     '/:taskId',
+    auth,
     require('../controllers/task').update_task
 );
 

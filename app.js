@@ -18,7 +18,7 @@ const app = express();
 const taskRoutes = require('./api/routes/task');
 const userRoutes = require('./api/routes/user');
 
-mongoose.connect("mongodb://"+process.env.MONGODB_ATLAS_USER+":"+process.env.MONGODB_ATLAS_PASSWORD+"@cluster0-shard-00-00-jbdji.mongodb.net:27017,cluster0-shard-00-01-jbdji.mongodb.net:27017,cluster0-shard-00-02-jbdji.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin")
+mongoose.connect("mongodb://"+process.env.MONGODB_ATLAS_USER+":"+process.env.MONGODB_ATLAS_PASSWORD+"@cluster0-shard-00-00-jbdji.mongodb.net:27017,cluster0-shard-00-01-jbdji.mongodb.net:27017,cluster0-shard-00-02-jbdji.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin");
 
 // log des informations sur les requetes
 app.use(morgan('dev'));
@@ -40,7 +40,9 @@ app.use((req, res, next) => {
     next()
 });
 
-app.use('/user', userRoutes);
+// Routes vers les tâches
 app.use('/task', taskRoutes);
+// Routes pour la gestion des utilisateurs
+app.use('/user', userRoutes);
 
 module.exports = app;

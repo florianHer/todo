@@ -4,6 +4,31 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 
 /**
+ * Affichage des utilisateurs
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.get_all = (req, res, next) => {
+    console.log('Affichage des utilisateurs...');
+    User.find()
+        .select('email')
+        .exec()
+        .then((results) => {
+            const response = {
+                count: results.length,
+                users: results
+            };
+            res.status(200).json(response)
+        }).catch((err) => {
+        res.status(500).json({
+            error: err
+        })
+    })
+};
+
+/**
  * Enregistrement d'un nouvel utilisateur
  *
  * @param req

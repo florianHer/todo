@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Task = require('../models/task.model');
 const User = require('../models/user.model');
+const auth = require('../middleware/auth');
 
 /**
  * TODO
@@ -11,19 +12,19 @@ const User = require('../models/user.model');
  * @param next
  */
 exports.get_all = (req, res, next) => {
-    console.log('Affichage des posts...');
+    console.log('Affichage des tâches...');
     Task.find()
-        .select('_id title content vues')
+        .select('_id userId name info create_date')
         .exec()
         .then((results) => {
             const response = {
                 count: results.length,
-                posts: results.map(post => {
+                posts: results.map(task => {
                     return {
-                        post,
+                        task,
                         detail: {
                             type: 'GET',
-                            url: 'http://localhost:3000/posts/' + post._id
+                            url: 'http://localhost:3000/task/' + task._id
                         }
                     }
                 })
@@ -45,15 +46,10 @@ exports.get_all = (req, res, next) => {
  */
 exports.get_task = (req, res, next) => {
     const id = req.params.taskId;
-    let v;
-    Task.findById(id).select('vues').then(post => {
-        v = post.vues + 1
-    }).catch();
-
-    Post.findByIdAndUpdate(id, {$inc: {vues: 1}}, {new: true}).then((result) => {
+    Task.findById(id).then((result) => {
         res.status(200).json({
-            message: 'Affichage du post',
-            post: result
+            message: 'Affichage de la tâche',
+            task: result
         })
     }).catch((err) => {
         res.status(500).json({
@@ -62,7 +58,7 @@ exports.get_task = (req, res, next) => {
     })
 };
 
-/** TODO PROBLEME DANS CETTE FONCTION
+/**
  * Ajoute une tache à un user
  *
  * @param req
@@ -98,23 +94,23 @@ exports.add_task = (req, res, next) => {
 };
 
 /**
- * TODO
+ * Mettre à jour une tache (l'utilisateur de la tache en question doit etre connecté et fournir son token dans le header)
  *
  * @param req
  * @param res
  * @param next
  */
 exports.update_task = (req, res, next) => {
-    const id = req.params.postId;
+    const id = req.params.taskId;
     const updateObj = {};
     const reqBody = req.body;
     for (let key in reqBody) {
         updateObj[key] = reqBody[key]
     }
-    Post.update({_id: id}, { $set: updateObj}).then((result) => {
+    Task.update({_id: id}, { $set: updateObj}).then((result) => {
         res.status(200).json({
             message: 'Modification d\'un post',
-            post: result
+            task: result
         })
     }).catch((err) => {
         res.status(500).json({
@@ -124,7 +120,7 @@ exports.update_task = (req, res, next) => {
 };
 
 /**
- * TODO
+ * Suppression d'une tache (L'utilisateur de la tache en question doit etre connecté et fournir son token d'authentification)
  *
  * @param req
  * @param res
@@ -132,7 +128,7 @@ exports.update_task = (req, res, next) => {
  */
 exports.remove_task = (req, res, next) => {
     const id = req.params.postId;
-    Post.remove({_id: id}).then((result) => {
+    Task.remove({_id: id}).then((result) => {
         res.status(200).json({
             message: 'Suppression d\'un post',
             post: result
